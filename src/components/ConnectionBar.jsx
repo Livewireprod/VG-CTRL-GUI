@@ -1,6 +1,10 @@
 import { useWS } from "../ws/WSContext";
+import {getProfile} from "../profiles";
 
 export default function ConnectionBar() {
+
+const profile = getProfile();
+
   const {
     wsUrl,
     setWsUrl,
@@ -20,14 +24,16 @@ export default function ConnectionBar() {
     : "Connected · TD Offline";
 
   return (
-    <div className="flex items-center justify-between gap-4 px-6 py-4">
+    <div className="flex items-center border-b border-[var(--tertiary)] justify-between gap-4 px-6 py-4">
 
       <div>
-        <h1 className="text-lg font-semibold tracking-tight">
-          Alpine Controller
-        </h1>
 
-        <p className="text-sm text-neutral-400">{status}</p>
+       <img
+         src={profile.brand.assets.connectionBar ?? profile.brand.assets.logo}
+         alt={`${profile.brand.assets.connectionBar ?? profile.brand.assets.logo} logo`}
+         className={profile.ui.classes.connectionBar}
+         />
+
       </div>
 
       <div className="flex items-center gap-2">
@@ -57,7 +63,9 @@ export default function ConnectionBar() {
           >
             Disconnect
           </button>
+          
         )}
+        <p className="text-sm text-neutral-400">{status}</p>
 
       </div>
     </div>

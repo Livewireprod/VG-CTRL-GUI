@@ -6,7 +6,7 @@ export default function ActivityLog() {
   return (
     <div className="bg-neutral-900/40 ring-1 ring-neutral-800">
 
-      <div className="border-b border-neutral-800 px-5 py-4">
+      <div className="border-b border-[var(--tertiary)] px-5 py-4">
         <h2 className="text-sm font-medium">Activity</h2>
       </div>
 
@@ -16,7 +16,7 @@ export default function ActivityLog() {
           log.map((l, i) => (
             <div
               key={i}
-              className="bg-neutral-950/50 px-3 py-2
+              className=" px-3 py-2
                          ring-1 ring-neutral-800"
             >
               {l}

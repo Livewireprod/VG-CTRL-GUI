@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Cadillac Gothic Narrow";
+  src: url("/brands/cadillac/fonts/CadillacGothic-NarrowRegular.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

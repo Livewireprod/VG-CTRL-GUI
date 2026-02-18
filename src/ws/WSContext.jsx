@@ -1,10 +1,30 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { getProfile } from "../profiles";
 
 const WSContext = createContext(null);
 
 const LS_KEY = "alpine_ws_url";
 
 export function WSProvider({ children }) {
+
+const profile = getProfile();
+
+const LS_KEY = `${profile.id}_ws_url`; // instead of "alpine_ws_url"
+
+const defaultWsUrl = (() => {
+    // 1) profile explicit default wins (best for kit deployments)
+  if (profile?.defaults?.wsUrl) return profile.defaults.wsUrl;
+
+    // 2) otherwise same-origin websocket (nice for single-machine dev)
+  if (typeof window !== "undefined") {
+    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${proto}//${window.location.host}`;
+  }
+
+    // 3) final fallback
+    return "ws://127.0.0.1:9982";
+  })();
+
   const [wsUrl, setWsUrl] = useState(() => {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) return saved;

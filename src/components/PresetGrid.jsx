@@ -14,7 +14,7 @@ export default function PresetGrid() {
   }
 
   return (
-    <div className="bg-neutral-900/40 ring-1 ring-neutral-800">
+    <div className="bg-neutral-900/40  ring-1 ring-neutral-800">
 
       <div className="flex items-center justify-between border-b border-neutral-800 px-5 py-4">
         <h2 className="text-sm font-medium">Presets</h2>
@@ -24,7 +24,7 @@ export default function PresetGrid() {
         </div>
       </div>
 
-      <div className="p-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="p-5 border-t border-[var(--tertiary)] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
 
         {presets.map((p) => {
           const name = p.name || p;
