@@ -36,4 +36,11 @@ $env:PORT=3000
 node server3.js
 ```
 
+## 5. TD Setup
 
+Drop a Websocket DAT:
+
+URL - ws://127.0.0.1
+Port - 9900
+
+Callback file - callbacks\wscallbacks.py
