@@ -1,2 +1,2 @@
-Run selected profile dev server: $env:VITE_PROFILE = "alpine"; npm run dev
+Run selected profile dev server: $env:VITE_PROFILE = "alpine"; npm run build
 
