@@ -5,9 +5,8 @@ import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 9900;
-const TD_POLL_MS = process.env.TD_POLL_MS
-  ? Number(process.env.TD_POLL_MS)
-  : 2000;
+const TD_POLL_MS_RAW = process.env.TD_POLL_MS;
+const TD_POLL_MS = TD_POLL_MS_RAW === undefined ? 0 : Number(TD_POLL_MS_RAW);
 const DIST_DIR = process.env.UI_DIST || "dist";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,11 +30,6 @@ let lastState = {
   updatedAt: null,
 };
 
-setInterval(() => {
-  if (tdSocket && tdSocket.readyState === 1) {
-    send(tdSocket, { type: "GET_STATE" });
-  }
-}, TD_POLL_MS);
 
 function send(ws, obj) {
   if (ws?.readyState === 1) ws.send(JSON.stringify(obj));
@@ -61,9 +55,6 @@ wss.on("connection", (ws, req) => {
   ws.clientType = "UNKNOWN";
   ws.ip = req.socket.remoteAddress;
 
-
-  send(ws, { type: "SERVER_HELLO", tdOnline: lastState.tdOnline });
-
   ws.on("message", (buf) => {
     let msg;
     try {
@@ -73,15 +64,11 @@ wss.on("connection", (ws, req) => {
       return;
     }
 
-
     if (msg.type === "UI_HELLO") {
       ws.clientType = "UI";
-      send(ws, { type: "SERVER_HELLO", tdOnline: lastState.tdOnline });
-     
       send(ws, { type: "STATE", ...lastState });
       return;
     }
-
 
     if (msg.type === "TD_HELLO") {
       ws.clientType = "TD";
@@ -102,11 +89,19 @@ wss.on("connection", (ws, req) => {
       return;
     }
 
+    if (ws.clientType === "TD" && (msg.type === "STATE" || msg.type === "STATE_PATCH")) {
+      const patch =
+        msg.type === "STATE_PATCH"
+          ? (msg.patch && typeof msg.patch === "object" ? msg.patch : null)
+          : (msg.state && typeof msg.state === "object" ? msg.state : null);
 
-    if (ws.clientType === "TD" && msg.type === "STATE") {
+      if (!patch) {
+        return;
+      }
+
       lastState = {
         ...lastState,
-        ...msg.state,
+        ...patch,
         tdOnline: true,
         updatedAt: new Date().toISOString(),
       };
@@ -114,13 +109,12 @@ wss.on("connection", (ws, req) => {
       return;
     }
 
-
     if (ws.clientType === "UI") {
       if (!tdSocket || tdSocket.readyState !== 1) {
         send(ws, { type: "ERR", error: "TD_NOT_CONNECTED" });
         return;
       }
-    
+
       send(tdSocket, msg);
       return;
     }

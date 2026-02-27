@@ -1,14 +1,16 @@
 import json
 
-#config
+# config
 PRESET_TABLE_PATH = "/prj/control/control_page6/preset_bank/null1"
 CODE_MODULE_NAME = "code"
 ACTIVE_PRESET_DAT_PATH = ""
 _active_preset = None
+_last_sent_state = None
 
 
 def _log(msg):
     print("[WS]", msg)
+
 
 def _safe_json(s):
     try:
@@ -16,10 +18,11 @@ def _safe_json(s):
     except:
         return None
 
+
 def _send(dat, obj):
     """
     websocketDAT has no .status member.
-    sendText returns bytes sent, or negative on error.  :contentReference[oaicite:2]{index=2}
+    sendText returns bytes sent, or negative on error.
     """
     try:
         n = dat.sendText(json.dumps(obj))
@@ -27,6 +30,7 @@ def _send(dat, obj):
             _log("sendText returned error ({})".format(n))
     except Exception as e:
         _log("Send failed: {}".format(e))
+
 
 def _preset_table():
     return op(PRESET_TABLE_PATH)
@@ -45,14 +49,14 @@ def _get_presets():
     try:
         name_col = t.col("name")
     except:
-
         return []
 
     out = []
-    for c in name_col[1:]: 
+    for c in name_col[1:]:
         if c.val:
             out.append({"name": c.val})
     return out
+
 
 def _set_active(name):
     global _active_preset
@@ -67,12 +71,14 @@ def _set_active(name):
             except:
                 pass
 
+
 def _get_active():
     if ACTIVE_PRESET_DAT_PATH:
         d = op(ACTIVE_PRESET_DAT_PATH)
         if d and d.numRows and d.numCols:
             v = d[0, 0].val
             return v if v else None
+
     t = _preset_table()
     if t:
         try:
@@ -91,14 +97,43 @@ def _get_active():
     return _active_preset
 
 
-def _publish_state(dat):
+def _current_state():
+    return {
+        "presets": _get_presets(),
+        "activePreset": _get_active(),
+    }
+
+
+def _diff_state(prev_state, next_state):
+    patch = {}
+    keys = set(prev_state.keys()) | set(next_state.keys())
+    for k in keys:
+        prev_val = prev_state.get(k)
+        next_val = next_state.get(k)
+        if prev_val != next_val:
+            patch[k] = next_val
+    return patch
+
+
+def _publish_state_patch(dat, force=False):
+    global _last_sent_state
+
+    next_state = _current_state()
+    if force or _last_sent_state is None:
+        patch = dict(next_state)
+    else:
+        patch = _diff_state(_last_sent_state, next_state)
+
+    if not patch:
+        return False
+
     _send(dat, {
-        "type": "STATE",
-        "state": {
-            "presets": _get_presets(),
-            "activePreset": _get_active(),
-        }
+        "type": "STATE_PATCH",
+        "patch": patch,
     })
+
+    _last_sent_state = next_state
+    return True
 
 
 def _apply_preset(name):
@@ -132,20 +167,17 @@ def _apply_preset(name):
         return False, "LOAD_FAILED"
 
 
-
 def onConnect(dat):
     _log("connected")
-
-
     _send(dat, {"type": "TD_HELLO"})
-
-   
-    _publish_state(dat)
+    _publish_state_patch(dat, force=True)
     return
+
 
 def onDisconnect(dat):
     _log("disconnected")
     return
+
 
 def onReceiveText(dat, rowIndex, message):
     msg = _safe_json(message)
@@ -155,7 +187,7 @@ def onReceiveText(dat, rowIndex, message):
     t = msg.get("type")
 
     if t == "GET_STATE":
-        _publish_state(dat)
+        _publish_state_patch(dat)
         return
 
     if t == "APPLY_PRESET":
@@ -168,7 +200,7 @@ def onReceiveText(dat, rowIndex, message):
 
         if ok:
             _send(dat, {"type": "ACK", "message": "Applied {}".format(name)})
-            _publish_state(dat)
+            _publish_state_patch(dat)
         else:
             _send(dat, {"type": "ERR", "error": err})
 
@@ -176,20 +208,22 @@ def onReceiveText(dat, rowIndex, message):
 
     return
 
+
 def onReceiveBinary(dat, contents):
     return
 
-def onReceivePing(dat, contents):
 
+def onReceivePing(dat, contents):
     try:
         dat.sendPong(contents)
     except:
         pass
     return
 
+
 def onReceivePong(dat, contents):
     return
 
+
 def onMonitorMessage(dat, message):
-   
     return

@@ -21,7 +21,9 @@ export const baseProfile = {
   },
 
   defaults: {
-    wsUrl: "ws://127.0.0.1:9982/",
+    wsUrl: "ws://127.0.0.1:9900/",
+    pollMs: 0
+
   },
 
   ui: {

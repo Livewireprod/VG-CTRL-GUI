@@ -1,0 +1,34 @@
+GUI does: 
+
+- Sends generic commands via JSON message schema:
+
+For buttons:
+{ "type": "CMD", "id": "preset_1" }
+{ "type": "CMD", "id": "play" }
+{ "type": "CMD", "id": "reboot" }
+
+For sliders:
+{ "type": "SET", "id": "volume", "value": 72 }
+{ "type": "SET", "id": "brightness", "value": 0.8 }
+
+For toggles:
+{ "type": "TOGGLE", "id": "mute", "value": true }
+
+
+TD does: 
+
+- Receives commands from the Web UI (via WebSocket DAT)
+
+- Maps those command IDs to team-specific actions via Table DAT e.g.
+
+
+| id       | kind | target_op                | target_par | value |
+| -------- | ---- | ------------------------ | ---------- | ----- |
+| preset_1 | par  | /project1/preset_control | preset     | 1     |
+| preset_2 | par  | /project1/preset_control | preset     | 2     |
+| play     | par  | /project1/player1        | play       | 1     |
+| pause    | par  | /project1/player1        | play       | 0     |
+| volume   | par  | /project1/audio          | gain       | $VAL  |
+
+
+- Publishes STATE back to Node/Web UI whenever something changes - FIND A BETTER WAY TO DO THIS RATHER THAN pollMS. 
