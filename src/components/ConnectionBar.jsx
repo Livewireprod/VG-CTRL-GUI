@@ -3,6 +3,7 @@ import { getProfile } from "../profiles";
 
 export default function ConnectionBar() {
   const profile = getProfile();
+  const classes = profile.ui?.classes || {};
 
   const {
     wsUrl,
@@ -23,17 +24,26 @@ export default function ConnectionBar() {
     : "Connected · TD Offline";
 
   return (
-    <div className="flex items-center border-b border-[var(--tertiary)] justify-between gap-4 px-6 py-4">
+    <div
+      className={
+        classes.connectionBarContainer ??
+        "flex items-center justify-between gap-4 border-b border-[var(--tertiary)] px-6 py-4"
+      }
+    >
       <div className="flex items-center gap-4">
         <img
           src={profile.brand.assets.connectionBar ?? profile.brand.assets.logo}
           alt=""
-          className={profile.ui.classes.connectionBarLogo}
+          className={classes.connectionBar ?? "h-8 w-auto"}
         />
 
         <div>
-          <div className="text-sm font-medium">{profile.brand.orgName}</div>
-          <div className="text-xs opacity-70">{status}</div>
+          <div className={classes.connectionBarOrgName ?? "text-sm font-medium"}>
+            {profile.brand.orgName}
+          </div>
+          <div className={classes.connectionBarStatus ?? "text-xs opacity-70"}>
+            {status}
+          </div>
         </div>
       </div>
 
@@ -41,21 +51,30 @@ export default function ConnectionBar() {
         <input
           value={wsUrl}
           onChange={(e) => setWsUrl(e.target.value)}
-          className="w-[320px] rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none"
+          className={
+            classes.controlInput ??
+            "w-[320px] border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none"
+          }
           placeholder="ws://localhost:9900"
         />
 
         {!connected ? (
           <button
             onClick={connect}
-            className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm font-medium hover:brightness-110"
+            className={
+              classes.controlButton ??
+              "border border-white/10 bg-black/20 px-3 py-2 text-sm font-medium hover:brightness-110"
+            }
           >
             Connect
           </button>
         ) : (
           <button
             onClick={disconnect}
-            className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm font-medium hover:brightness-110"
+            className={
+              classes.controlButton ??
+              "border border-white/10 bg-black/20 px-3 py-2 text-sm font-medium hover:brightness-110"
+            }
           >
             Disconnect
           </button>

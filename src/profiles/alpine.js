@@ -35,7 +35,9 @@ ui: {
     },
      classes: {
       logo: "h-8 w-auto invert", 
-      connectionBar: "h-8 w-auto invert"
+      connectionBar: "h-8 w-auto invert",
+      backgroundLogo:
+        "pointer-events-none absolute left-1/2 top-1/2 w-[30rem] md:w-[42rem] lg:w-[54rem] -translate-x-1/2 -translate-y-1/2 opacity-10"
     }
   },
 

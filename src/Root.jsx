@@ -26,7 +26,10 @@ export default function Root() {
           src={profile.brand.assets.logo}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 w-72 md:w-96 lg:w-[40rem] -translate-x-1/2 -translate-y-1/2 opacity-10"
+          className={
+            profile.ui?.classes?.backgroundLogo ??
+            "pointer-events-none absolute left-1/2 top-1/2 w-72 md:w-96 lg:w-[40rem] -translate-x-1/2 -translate-y-1/2 opacity-10"
+          }
         />
 
         <main className="relative z-10 mx-auto max-w-6xl p-6 grid gap-6 md:grid-cols-3">
