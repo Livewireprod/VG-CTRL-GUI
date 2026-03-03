@@ -75,17 +75,15 @@ function normaliseMessage(msg) {
         value = s === "true" || s === "1" || s === "on" || s === "yes";
       }
     } else if (valueType === "json") {
-      // If already an object/array, keep it. If string, parse it.
+    
       if (typeof value === "string") {
         const parsed = JSON.parse(value);
         value = parsed;
       }
     } else {
-      // string
       value = value == null ? "" : String(value);
     }
   } catch {
-    // If JSON parse fails etc, fall back safely
     if (valueType === "json") value = null;
   }
 
@@ -111,7 +109,6 @@ export default function ControlPanel({
     classes.controlButton ??
     "border border-white/10 bg-black/20 px-3 py-2 text-sm font-medium hover:brightness-110";
 
-  // layout state
   const [layout, setLayout] = useState(() => {
     const saved = safeJsonParse(localStorage.getItem(storageKey), null);
     if (!saved?.pages?.length) return defaultLayout();
@@ -135,7 +132,6 @@ export default function ControlPanel({
     [layout.pages, activePageId]
   );
 
-  // edit mode
   const [editMode, setEditMode] = useState(false);
   const [selectedBtnId, setSelectedBtnId] = useState(null);
 
@@ -224,15 +220,12 @@ export default function ControlPanel({
 
           const nextMsg = { ...(b.message || {}), ...msgPatch };
 
-          // If switching type, apply sensible defaults
+       
           if (msgPatch.type === "SET") {
             if (nextMsg.valueType == null) nextMsg.valueType = "number";
             if (nextMsg.value == null) nextMsg.value = 0;
           }
           if (msgPatch.type === "CMD") {
-            // keep value fields around harmlessly, but you can uncomment to strip:
-            // delete nextMsg.value;
-            // delete nextMsg.valueType;
           }
 
           return { ...b, message: nextMsg };

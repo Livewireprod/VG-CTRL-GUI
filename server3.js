@@ -74,11 +74,11 @@ wss.on("connection", (ws, req) => {
       return;
     }
 
-    // TD registers itself
+   
     if (msg.type === "TD_HELLO") {
       ws.clientType = "TD";
 
-      // Replace previous TD
+     
       if (tdSocket && tdSocket !== ws) {
         try {
           safeSend(tdSocket, { type: "INFO", message: "TD_REPLACED" });
@@ -93,7 +93,7 @@ wss.on("connection", (ws, req) => {
       return;
     }
 
-    // UI registers itself
+    
     if (msg.type === "UI_HELLO") {
       ws.clientType = "UI";
       ws.isAlive = true;
@@ -103,20 +103,19 @@ wss.on("connection", (ws, req) => {
       return;
     }
 
-    // TD -> UI passthrough
+
     if (ws.clientType === "TD") {
       broadcastToUIs(msg);
       return;
     }
 
-    // UI -> TD passthrough (NO state handling)
     if (ws.clientType === "UI") {
       if (!tdSocket || tdSocket.readyState !== 1) {
         safeSend(ws, { type: "ERR", error: "TD_NOT_CONNECTED" });
         return;
       }
 
-      // Ignore GET_STATE for now (prevents spam reaching TD)
+   
       if (msg?.type === "GET_STATE") return;
 
       tdSocket.send(JSON.stringify(msg));
